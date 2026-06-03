@@ -1,0 +1,110 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #f4f4fb;
+  --surface: #ffffff;
+  --border: #e4e4f0;
+  --text: #14181f;
+  --text-muted: #5c6270;
+  --primary: #4f46e5;
+  --primary-soft: #ecebfe;
+
+  --buy: #16a34a;
+  --buy-bg: #e8f7ee;
+  --fine: #2563eb;
+  --fine-bg: #e7eefe;
+  --wait: #d97706;
+  --wait-bg: #fef3e2;
+  --skip: #dc2626;
+  --skip-bg: #fcebeb;
+
+  --shadow-card: 0 1px 2px rgba(20, 24, 31, 0.05), 0 16px 36px -24px rgba(79, 70, 229, 0.4);
+}
+
+/* Expose the palette as Tailwind utilities (bg-surface, text-muted, etc.). */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-border: var(--border);
+  --color-ink: var(--text);
+  --color-muted: var(--text-muted);
+  --color-primary: var(--primary);
+  --color-primary-soft: var(--primary-soft);
+
+  --color-buy: var(--buy);
+  --color-buy-bg: var(--buy-bg);
+  --color-fine: var(--fine);
+  --color-fine-bg: var(--fine-bg);
+  --color-wait: var(--wait);
+  --color-wait-bg: var(--wait-bg);
+  --color-skip: var(--skip);
+  --color-skip-bg: var(--skip-bg);
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  --radius-card: 16px;
+  --radius-control: 10px;
+}
+
+body {
+  background:
+    radial-gradient(120% 80% at 100% 0%, rgba(79, 70, 229, 0.08), transparent 60%),
+    radial-gradient(120% 80% at 0% 0%, rgba(37, 99, 235, 0.06), transparent 55%),
+    var(--bg);
+  background-attachment: fixed;
+  color: var(--text);
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Bold-expressive headings use the display font with tight tracking. */
+h1,
+h2,
+h3 {
+  font-family: var(--font-display), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: -0.02em;
+}
+
+.card-soft {
+  box-shadow: var(--shadow-card);
+}
+
+.eyebrow {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* Range sliders share the accent across the tuning controls. */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--primary-soft);
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 9999px;
+  background: var(--primary);
+  border: 3px solid var(--surface);
+  box-shadow: 0 1px 3px rgba(20, 24, 31, 0.25);
+  cursor: pointer;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 9999px;
+  background: var(--primary);
+  border: 3px solid var(--surface);
+  box-shadow: 0 1px 3px rgba(20, 24, 31, 0.25);
+  cursor: pointer;
+}
