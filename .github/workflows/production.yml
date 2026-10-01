@@ -56,7 +56,7 @@ jobs:
       - name: Setup SSH and Docker Context
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_rsa
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_rsaa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.VPS_IP }} > ~/.ssh/known_hosts
           docker context create personal-vps --docker "host=ssh://${{ secrets.VPS_USER }}@${{ secrets.VPS_IP }}"
