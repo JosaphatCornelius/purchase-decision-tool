@@ -1,0 +1,72 @@
+name: Production
+
+env:
+  REGISTRY: ghcr.io
+  NAMESPACE: josaphatcornelius
+  DOCKER_TAG: ${{ github.event.release.tag_name }}
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+    environment: production
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build NextJS Production
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ github.event.repository.name }}:${{env.DOCKER_TAG}}
+
+  deploy:
+    runs-on: ubuntu-24.04
+    needs: build
+    permissions:
+      contents: read
+      packages: read
+    environment: production
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup SSH and Docker Context
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_rsaa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.VPS_IP }} > ~/.ssh/known_hosts
+          docker context create personal-vps --docker "host=ssh://${{ secrets.VPS_USER }}@${{ secrets.VPS_IP }}"
+
+      - name: Deploy Compose
+        run: |
+          echo "Start Deployment Production";
+          echo ${{ secrets.GITHUB_TOKEN }} | docker --context personal-vps login ghcr.io --username ${{ github.actor }} --password-stdin;
+          sleep 5;
+          DOCKER_TAG=${{ env.DOCKER_TAG }} REGISTRY=${{ env.REGISTRY }} NAMESPACE=${{ env.NAMESPACE }} CONTAINER_NAME=${{ github.event.repository.name }} docker --context personal-vps compose -f docker-compose.yml up -d;
+          sleep 5;
+          echo "Cleaning up dangling images";
+          docker --context personal-vps image prune -f;
