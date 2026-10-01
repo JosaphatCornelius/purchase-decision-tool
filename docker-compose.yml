@@ -1,0 +1,18 @@
+services:
+  website:
+    image: ${REGISTRY}/${NAMESPACE}/${CONTAINER_NAME}:${DOCKER_TAG:-latest}
+    container_name: ${CONTAINER_NAME}
+    pull_policy: always
+    environment:
+      APP_ENV: production
+    # for manual build
+    # build: 
+    #   context: . 
+    #   dockerfile: dockerfile
+    restart: always
+    networks:
+      - apisix_frontend
+
+networks:
+  apisix_frontend:
+    external: true
