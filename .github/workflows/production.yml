@@ -54,19 +54,26 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Setup SSH and Docker Context
+        env:
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_IP: ${{ secrets.VPS_IP }}
+          VPS_USER: ${{ secrets.VPS_USER }}
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_rsa
+          echo "$VPS_SSH_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.VPS_IP }} > ~/.ssh/known_hosts
-          docker context create personal-vps --docker "host=ssh://${{ secrets.VPS_USER }}@${{ secrets.VPS_IP }}"
+          ssh-keyscan -H "$VPS_IP" > ~/.ssh/known_hosts
+          docker context create personal-vps --docker "host=ssh://${VPS_USER}@${VPS_IP}"
 
       - name: Deploy Compose
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GHCR_USER: ${{ github.actor }}
+          DOCKER_TAG: ${{ env.DOCKER_TAG }}
+          REGISTRY: ${{ env.REGISTRY }}
+          NAMESPACE: ${{ env.NAMESPACE }}
+          CONTAINER_NAME: ${{ github.event.repository.name }}
         run: |
-          echo "Start Deployment Production";
-          echo ${{ secrets.GITHUB_TOKEN }} | docker --context personal-vps login ghcr.io --username ${{ github.actor }} --password-stdin;
-          sleep 5;
-          DOCKER_TAG=${{ env.DOCKER_TAG }} REGISTRY=${{ env.REGISTRY }} NAMESPACE=${{ env.NAMESPACE }} CONTAINER_NAME=${{ github.event.repository.name }} docker --context personal-vps compose -f docker-compose.yml up -d;
-          sleep 5;
-          echo "Cleaning up dangling images";
-          docker --context personal-vps image prune -f;
+          echo "$GHCR_TOKEN" | docker --context personal-vps login ghcr.io --username "$GHCR_USER" --password-stdin
+          docker --context personal-vps compose -f docker-compose.yml up -d
+          docker --context personal-vps image prune -f
